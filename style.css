@@ -1,0 +1,604 @@
+:root {
+  --bg: #12131c;
+  --bg-deep: #0b0c13;
+  --surface: #1b1d2a;
+  --surface-light: #242737;
+  --border: #323548;
+  --text: #eef0f8;
+  --text-dim: #8d92ad;
+  --primary: #5b7cfa;
+  --primary-dark: #4463d6;
+  --secondary: #ff8a5c;
+  --gold: #f5c451;
+  --diamond: #5fd3e8;
+  --success: #57c98a;
+  --danger: #ec5c73;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Rajdhani', 'Segoe UI', sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg-deep);
+  color: var(--text);
+}
+
+.app {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 20% 15%, rgba(91, 124, 250, 0.08), transparent 45%),
+    radial-gradient(circle at 85% 75%, rgba(245, 196, 81, 0.06), transparent 45%),
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.015) 0px, rgba(255, 255, 255, 0.015) 2px, transparent 2px, transparent 22px);
+}
+
+/* Fixed logical resolution, scaled via CSS — the canvas's internal
+   coordinate space never changes, so nothing needs to reposition itself
+   when the browser chrome shows/hides on mobile. */
+#game-canvas {
+  display: block;
+  background: linear-gradient(180deg, var(--bg) 0%, var(--bg-deep) 100%);
+  max-width: 100vw;
+  max-height: 100vh;
+  width: auto;
+  height: 100%;
+  touch-action: none;
+}
+
+.screen {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: auto;
+  padding: 24px 20px;
+}
+
+.screen.active { display: flex; }
+
+/* ---------- Lobby ---------- */
+
+#screen-lobby { justify-content: space-between; }
+
+.topbar {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding-right: 56px; /* keeps the diamond chip clear of the fixed sound button */
+}
+
+.currency-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.icon-coin, .icon-diamond {
+  width: 18px;
+  height: 18px;
+  display: inline-block;
+}
+
+.lobby-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  max-width: 400px;
+  background: linear-gradient(180deg, rgba(36, 39, 55, 0.55) 0%, rgba(27, 29, 42, 0.35) 100%);
+  border: 1px solid var(--border);
+  border-radius: 26px;
+  padding: 28px 24px 26px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.3);
+}
+
+.logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.hero-art { width: min(300px, 82vw); margin-bottom: 4px; }
+.hero-art svg { width: 100%; height: auto; filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.35)); }
+.hero-ball { animation: heroFloat 1.6s ease-in-out infinite; transform-origin: center; }
+@keyframes heroFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(6px); }
+}
+
+.logo h1 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(26px, 7vw, 36px);
+  letter-spacing: 1px;
+  text-align: center;
+}
+
+.logo .sub {
+  color: var(--text-dim);
+  font-size: 14px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.btn {
+  border: none;
+  border-radius: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Orbitron', sans-serif;
+  letter-spacing: 0.5px;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #fff;
+  padding: 16px 54px;
+  font-size: 20px;
+  box-shadow: 0 8px 22px rgba(91, 124, 250, 0.4);
+}
+.btn-primary:hover { transform: translateY(-2px); }
+.btn-primary:active { transform: translateY(0); }
+
+.btn-secondary {
+  background: var(--surface-light);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 12px 34px;
+  font-size: 15px;
+}
+.btn-secondary:hover { background: var(--border); }
+
+.lobby-footer { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; max-width: 340px; }
+
+.daily-card {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(135deg, rgba(91, 124, 250, 0.14), rgba(245, 196, 81, 0.1));
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px 14px;
+  cursor: pointer;
+  text-align: left;
+  color: var(--text);
+  transition: transform 0.12s ease, border-color 0.12s ease;
+}
+.daily-card:hover { transform: translateY(-2px); border-color: var(--gold); }
+.daily-card:active { transform: translateY(0); }
+
+.daily-card.claimable {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px rgba(245, 196, 81, 0.18);
+  animation: dailyPulse 1.8s ease-in-out infinite;
+}
+@keyframes dailyPulse {
+  0%, 100% { box-shadow: 0 0 0 2px rgba(245, 196, 81, 0.18); }
+  50% { box-shadow: 0 0 0 5px rgba(245, 196, 81, 0.1); }
+}
+
+.daily-card-icon { width: 30px; height: 30px; flex-shrink: 0; }
+.daily-card-icon svg { width: 100%; height: 100%; }
+
+.daily-card-text { flex: 1; min-width: 0; }
+.daily-card-title { font-size: 12px; font-weight: 800; letter-spacing: 0.6px; font-family: 'Orbitron', sans-serif; }
+.daily-card-status { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+.daily-card.claimable .daily-card-status { color: var(--gold); font-weight: 700; }
+
+.daily-card-arrow { width: 18px; height: 18px; color: var(--text-dim); flex-shrink: 0; }
+.daily-card-arrow svg { width: 100%; height: 100%; }
+
+/* ---------- Header bar (shared by shop/levels) ---------- */
+
+.screen-header {
+  width: 100%;
+  max-width: 620px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.screen-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 22px;
+  letter-spacing: 1px;
+}
+
+/* ---------- Levels ---------- */
+
+.levels-grid {
+  width: 100%;
+  max-width: 620px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 14px;
+  padding-bottom: 30px;
+}
+
+.level-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: transform 0.12s ease, border-color 0.12s ease;
+}
+.level-card:hover { transform: translateY(-2px); border-color: var(--primary); }
+.level-card.locked { opacity: 0.4; cursor: not-allowed; }
+.level-card.completed { border-color: var(--success); }
+
+.level-num {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+}
+.level-name { font-size: 13px; font-weight: 600; }
+.level-diff { font-size: 11px; color: var(--text-dim); }
+.level-lock svg { width: 20px; height: 20px; opacity: 0.6; }
+
+/* ---------- Shop ---------- */
+
+.shop-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.tab-btn {
+  background: var(--surface);
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 9px 18px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+}
+.tab-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+.shop-grid {
+  width: 100%;
+  max-width: 620px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 14px;
+  padding-bottom: 30px;
+}
+
+.shop-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.shop-icon svg { width: 40px; height: 40px; }
+.shop-name { font-weight: 700; font-size: 15px; text-align: center; }
+.shop-desc { font-size: 11px; color: var(--text-dim); text-align: center; min-height: 28px; }
+
+.shop-price {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.buy-btn {
+  width: 100%;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 9px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 13px;
+}
+.buy-btn:disabled { background: var(--surface-light); color: var(--text-dim); cursor: not-allowed; }
+.buy-btn.owned { background: var(--success); }
+.buy-btn.active-item { background: var(--surface-light); color: var(--text-dim); cursor: default; }
+
+/* ---------- Game HUD ---------- */
+
+#screen-game { padding: 0; display: none; }
+#screen-game.active { display: block; }
+
+.hud {
+  position: absolute;
+  top: 10px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 0 14px;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.hud-left, .hud-right { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.hud-right { align-items: flex-end; }
+
+.hud-pill {
+  background: rgba(18, 19, 28, 0.72);
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.hud-effects {
+  position: absolute;
+  bottom: 14px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.effect-badge {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(18, 19, 28, 0.8);
+  border: 2px solid var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.effect-badge svg { width: 18px; height: 18px; }
+
+.pause-btn {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 6;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(18, 19, 28, 0.72);
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ---------- Popups ---------- */
+
+.popup {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 9, 14, 0.78);
+  z-index: 50;
+  align-items: center;
+  justify-content: center;
+  animation: popupFade 0.2s ease;
+}
+.popup.active { display: flex; }
+
+@keyframes popupFade {
+  from { background: rgba(8, 9, 14, 0); }
+  to { background: rgba(8, 9, 14, 0.78); }
+}
+
+.popup-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 30px;
+  max-width: 380px;
+  width: 88%;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  animation: popupPop 0.25s cubic-bezier(0.2, 0.9, 0.3, 1.3);
+}
+
+@keyframes popupPop {
+  from { opacity: 0; transform: scale(0.88) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.popup-icon svg { width: 54px; height: 54px; margin-bottom: 10px; }
+.popup-title { font-family: 'Orbitron', sans-serif; font-size: 24px; margin-bottom: 10px; }
+.popup-msg { font-size: 16px; color: var(--text-dim); margin-bottom: 22px; line-height: 1.5; }
+.popup-rewards { display: flex; justify-content: center; gap: 16px; margin-bottom: 22px; }
+
+.button-row {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.button-row .btn-primary,
+.button-row .btn-secondary {
+  flex: 1 1 auto;
+  min-width: 140px;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+.popup-reward-item { display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 16px; }
+.popup-reward-item svg { width: 20px; height: 20px; }
+
+.ad-timer-ring {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 14px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+}
+.ad-timer-ring svg { position: absolute; top: 0; left: 0; transform: rotate(-90deg); }
+.ad-timer-ring circle { fill: none; stroke-width: 5; }
+.ad-timer-ring .bg { stroke: var(--surface-light); }
+.ad-timer-ring .fg { stroke: var(--primary); stroke-linecap: round; transition: stroke-dashoffset 1s linear; }
+
+.sound-toggle {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.sound-toggle.is-muted {
+  background: rgba(236, 92, 115, 0.16);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+.sound-toggle svg { width: 20px; height: 20px; }
+
+/* ---------- Daily reward track ---------- */
+
+.popup-card-wide { max-width: 460px; }
+
+.daily-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 22px;
+}
+
+.daily-cell {
+  position: relative;
+  background: var(--surface-light);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.daily-cell.claimed { opacity: 0.5; border-color: var(--success); }
+
+.daily-cell.today {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(245, 196, 81, 0.22);
+}
+
+.daily-cell .day-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--text-dim);
+}
+
+.daily-cell .day-icon svg { width: 22px; height: 22px; }
+.daily-cell .day-value { font-size: 12px; font-weight: 700; }
+
+.daily-cell .day-claimed {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--success);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.daily-cell .day-claimed svg { width: 11px; height: 11px; color: #0b0c13; }
+
+/* ---------- Lives hearts ---------- */
+
+.heart-icon svg { width: 16px; height: 16px; display: block; }
+
+/* ---------- Subtle depth for the lobby, without going neon ---------- */
+
+#screen-lobby {
+  background:
+    radial-gradient(circle at 50% 18%, rgba(91, 124, 250, 0.14), transparent 55%),
+    radial-gradient(circle at 85% 85%, rgba(245, 196, 81, 0.08), transparent 50%);
+}
+
+.logo-icon svg { filter: drop-shadow(0 6px 14px rgba(91, 124, 250, 0.35)); }
+
+.stats-row {
+  display: flex;
+  gap: 10px;
+  margin: 2px 0 6px;
+}
+
+.stat-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+
+.stat-chip svg { width: 16px; height: 16px; flex-shrink: 0; }
+.stat-chip span span { color: var(--text); font-weight: 700; }
+
+.shop-card, .level-card { box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18); }
+
+@media (max-width: 420px) {
+  .btn-primary { padding: 14px 44px; font-size: 18px; }
+  .levels-grid, .shop-grid { grid-template-columns: repeat(2, 1fr); }
+}

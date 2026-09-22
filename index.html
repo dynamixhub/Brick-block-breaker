@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Brick Breaker</title>
+  <meta name="description" content="A brick breaker arcade game by Dynamix Studio." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;800&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<div class="app" id="app">
+
+  <button class="sound-toggle" id="sound-toggle" type="button" aria-label="Toggle sound">
+    <svg id="sound-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="3 9 3 15 8 15 13 20 13 4 8 9 3 9"></polygon>
+      <path d="M16 8a5 5 0 0 1 0 8"></path>
+      <path d="M18.5 5.5a9 9 0 0 1 0 13"></path>
+    </svg>
+  </button>
+
+  <!-- Canvas game screen -->
+  <div class="screen" id="screen-game">
+    <canvas id="game-canvas" width="480" height="800"></canvas>
+    <button class="pause-btn" id="pause-btn" type="button" aria-label="Pause">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+    </button>
+    <div class="hud">
+      <div class="hud-left">
+        <div class="hud-pill">SCORE <span id="hud-score">0</span></div>
+        <div class="hud-pill">LEVEL <span id="hud-level">1</span></div>
+      </div>
+      <div class="hud-right">
+        <div class="hud-pill" id="hud-lives">♥ ♥ ♥</div>
+      </div>
+    </div>
+    <div class="hud-effects" id="hud-effects"></div>
+  </div>
+
+  <!-- Lobby -->
+  <div class="screen active" id="screen-lobby">
+    <div class="topbar">
+      <div class="currency-chip">
+        <svg class="icon-coin" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#f5c451"/><circle cx="12" cy="12" r="6.5" fill="none" stroke="#c99a2a" stroke-width="1.5"/></svg>
+        <span id="coin-count">0</span>
+      </div>
+      <div class="currency-chip">
+        <svg class="icon-diamond" viewBox="0 0 24 24"><polygon points="12,2 19,9 12,22 5,9" fill="#5fd3e8"/><polygon points="5,9 19,9 12,2" fill="#8fe4f2"/></svg>
+        <span id="diamond-count">0</span>
+      </div>
+    </div>
+
+    <div class="lobby-center">
+      <div class="logo">
+        <div class="hero-art">
+          <svg viewBox="0 0 264 116" fill="none">
+            <rect x="14" y="8" width="36" height="14" rx="3" fill="#5b7cfa"/>
+            <rect x="54" y="8" width="36" height="14" rx="3" fill="#57c98a"/>
+            <rect x="94" y="8" width="36" height="14" rx="3" fill="#f5c451"/>
+            <rect x="134" y="8" width="36" height="14" rx="3" fill="#ff8a5c"/>
+            <rect x="174" y="8" width="36" height="14" rx="3" fill="#5fd3e8"/>
+            <rect x="214" y="8" width="36" height="14" rx="3" fill="#ec5c73"/>
+            <rect x="14" y="26" width="36" height="14" rx="3" fill="#57c98a"/>
+            <rect x="54" y="26" width="36" height="14" rx="3" fill="#f5c451"/>
+            <rect x="94" y="26" width="36" height="14" rx="3" fill="#ff8a5c"/>
+            <rect x="134" y="26" width="36" height="14" rx="3" fill="#5fd3e8"/>
+            <rect x="174" y="26" width="36" height="14" rx="3" fill="#ec5c73"/>
+            <rect x="214" y="26" width="36" height="14" rx="3" fill="#5b7cfa"/>
+            <rect x="14" y="44" width="36" height="14" rx="3" fill="#f5c451"/>
+            <rect x="54" y="44" width="36" height="14" rx="3" fill="#ff8a5c"/>
+            <rect x="94" y="44" width="36" height="14" rx="3" fill="#5fd3e8"/>
+            <rect x="134" y="44" width="36" height="14" rx="3" fill="#ec5c73"/>
+            <rect x="174" y="44" width="36" height="14" rx="3" fill="#5b7cfa"/>
+            <rect x="214" y="44" width="36" height="14" rx="3" fill="#57c98a"/>
+            <circle class="hero-ball" cx="132" cy="78" r="7" fill="#eef0f8"/>
+            <rect x="100" y="98" width="64" height="9" rx="4.5" fill="#eef0f8"/>
+          </svg>
+        </div>
+        <h1>BRICK BREAKER</h1>
+        <p class="sub">Dynamix Studio</p>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-chip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#5b7cfa" stroke-width="1.8"><path d="M4 4h16v4a4 4 0 0 1-8 0V4Z"/><path d="M2 4h2v2a4 4 0 0 0 4 4"/><path d="M20 4h2v2a4 4 0 0 1-4 4"/><path d="M10 15v3h4v-3"/><path d="M8 21h8"/></svg>
+          <span>Level <span id="stat-level">1</span>/20</span>
+        </div>
+        <div class="stat-chip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#f5c451" stroke-width="1.8"><circle cx="12" cy="10" r="6"/><path d="M9.5 21l1-4h3l1 4"/><path d="M9 10l2 2 4-4"/></svg>
+          <span>Best <span id="stat-highscore">0</span></span>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" id="play-btn">PLAY</button>
+      <button class="btn btn-secondary" id="shop-btn">SHOP</button>
+    </div>
+
+    <div class="lobby-footer">
+      <button class="daily-card" id="daily-card-btn">
+        <div class="daily-card-icon" id="daily-card-icon"></div>
+        <div class="daily-card-text">
+          <div class="daily-card-title">DAILY REWARDS</div>
+          <div class="daily-card-status" id="daily-card-status">Day 1 of 7</div>
+        </div>
+        <div class="daily-card-arrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>
+        </div>
+      </button>
+      <button class="btn btn-secondary" id="ads-btn">WATCH AD · +50 COINS</button>
+    </div>
+  </div>
+
+  <!-- Level select -->
+  <div class="screen" id="screen-levels">
+    <div class="screen-header">
+      <button class="btn btn-secondary" id="levels-back-btn">BACK</button>
+      <div class="screen-title">SELECT LEVEL</div>
+      <div style="width:76px"></div>
+    </div>
+    <div class="levels-grid" id="levels-grid"></div>
+  </div>
+
+  <!-- Shop -->
+  <div class="screen" id="screen-shop">
+    <div class="screen-header">
+      <button class="btn btn-secondary" id="shop-back-btn">BACK</button>
+      <div class="screen-title">SHOP</div>
+      <div style="width:76px"></div>
+    </div>
+    <div class="shop-tabs">
+      <button class="tab-btn active" data-cat="balls">BALLS</button>
+      <button class="tab-btn" data-cat="paddles">PADDLES</button>
+      <button class="tab-btn" data-cat="currency">CURRENCY</button>
+    </div>
+    <div class="shop-grid" id="shop-grid"></div>
+  </div>
+
+  <!-- Result popup (win / lose / daily reward) -->
+  <div class="popup" id="popup-result">
+    <div class="popup-card">
+      <div class="popup-icon" id="popup-result-icon"></div>
+      <div class="popup-title" id="popup-result-title">LEVEL COMPLETE</div>
+      <div class="popup-msg" id="popup-result-msg"></div>
+      <div class="popup-rewards" id="popup-result-rewards"></div>
+      <div class="button-row">
+        <button class="btn btn-primary" id="popup-result-btn">CONTINUE</button>
+        <button class="btn btn-secondary" id="popup-result-home-btn">GO TO HOMEPAGE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ad popup -->
+  <div class="popup" id="popup-ad">
+    <div class="popup-card">
+      <div class="ad-timer-ring">
+        <svg width="64" height="64" viewBox="0 0 64 64">
+          <circle class="bg" cx="32" cy="32" r="28"></circle>
+          <circle class="fg" id="ad-ring" cx="32" cy="32" r="28" stroke-dasharray="176" stroke-dashoffset="0"></circle>
+        </svg>
+        <span id="ad-seconds">5</span>
+      </div>
+      <div class="popup-title" id="ad-title">WATCHING AD</div>
+      <div class="popup-msg" id="ad-msg">Your reward unlocks when the ad finishes.</div>
+      <button class="btn btn-primary" id="ad-close-btn" disabled>SKIP</button>
+    </div>
+  </div>
+
+  <!-- Pause popup -->
+  <div class="popup" id="popup-pause">
+    <div class="popup-card">
+      <div class="popup-title">PAUSED</div>
+      <button class="btn btn-primary" id="resume-btn" style="margin-bottom:12px;">RESUME</button>
+      <button class="btn btn-secondary" id="quit-btn">QUIT TO MENU</button>
+    </div>
+  </div>
+
+  <!-- Daily login reward: 7-day track -->
+  <div class="popup" id="popup-daily">
+    <div class="popup-card popup-card-wide">
+      <div class="popup-icon" id="daily-icon"></div>
+      <div class="popup-title">7-DAY LOGIN REWARDS</div>
+      <div class="popup-msg" id="daily-msg"></div>
+      <div class="daily-grid" id="daily-grid"></div>
+      <button class="btn btn-primary" id="daily-continue-btn">CLAIM</button>
+    </div>
+  </div>
+
+</div>
+<script src="js/game.js"></script>
+</body>
+</html>
